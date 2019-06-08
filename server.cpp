@@ -58,7 +58,7 @@ class session : public participant, public enable_shared_from_this<session> {
         void readHeader() {
             auto self(shared_from_this());
             boost::asio::async_read(socket,
-            boost::asio::buffer(messageItem.data(), message::header_length), [this, self](boost::system::error_code ec, size_t) {
+            boost::asio::buffer(messageItem.data(), message::headerLength), [this, self](boost::system::error_code ec, size_t) {
                 if(!ec && messageItem.decodeHeader()) {
                     readBody();
                 }
