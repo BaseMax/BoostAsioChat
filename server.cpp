@@ -94,7 +94,6 @@ class chat_session : public chat_participant, public std::enable_shared_from_thi
                 }
             });
         }
-
         tcp::socket socket_;
         chat_room& room_;
         chat_message read_msg_;
