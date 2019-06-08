@@ -40,7 +40,7 @@ class room {
 };
 class session : public participant, public enable_shared_from_this<session> {
     public:
-        session(tcp::socket socket, room& room) : socket_(move(socket)), room_(room) {
+        session(tcp::socket socket, room& room) : socket(move(socket)), room_(room) {
         }
         void start() {
             room_.join(shared_from_this());
@@ -57,7 +57,7 @@ class session : public participant, public enable_shared_from_this<session> {
     private:
         void readHeader() {
             auto self(shared_from_this());
-            boost::asio::async_read(socket_,
+            boost::asio::async_read(socket,
             boost::asio::buffer(messageItem.data(), message::header_length), [this, self](boost::system::error_code ec, size_t) {
                 if(!ec && messageItem.decodeHeader()) {
                     readBody();
@@ -69,7 +69,7 @@ class session : public participant, public enable_shared_from_this<session> {
         }
         void readBody() {
             auto self(shared_from_this());
-            boost::asio::async_read(socket_, boost::asio::buffer(messageItem.body(), messageItem.bodyLength()), [this, self](boost::system::error_code ec, size_t) {
+            boost::asio::async_read(socket, boost::asio::buffer(messageItem.body(), messageItem.bodyLength()), [this, self](boost::system::error_code ec, size_t) {
                 if(!ec) {
                     room_.deliver(messageItem);
                     readHeader();
@@ -81,7 +81,7 @@ class session : public participant, public enable_shared_from_this<session> {
         }
         void write() {
             auto self(shared_from_this());
-            boost::asio::async_write(socket_, boost::asio::buffer(Messages.front().data(), Messages.front().length()), [this, self](boost::system::error_code ec, size_t) {
+            boost::asio::async_write(socket, boost::asio::buffer(Messages.front().data(), Messages.front().length()), [this, self](boost::system::error_code ec, size_t) {
                 if(!ec) {
                     Messages.pop_front();
                     if(!Messages.empty()) {
@@ -93,7 +93,7 @@ class session : public participant, public enable_shared_from_this<session> {
                 }
             });
         }
-        tcp::socket socket_;
+        tcp::socket socket;
         room& room_;
         message messageItem;
         messageQueue Messages;
