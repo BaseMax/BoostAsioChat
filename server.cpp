@@ -100,19 +100,19 @@ class session : public participant, public enable_shared_from_this<session> {
 };
 class server {
     public:
-        server(boost::asio::io_context& io_context, const tcp::endpoint& endpoint) : acceptor_(io_context, endpoint) {
+        server(boost::asio::io_context& io_context, const tcp::endpoint& endpoint) : acceptor(io_context, endpoint) {
             do_accept();
         }
     private:
         void do_accept() {
-            acceptor_.async_accept([this](boost::system::error_code ec, tcp::socket socket) {
+            acceptor.async_accept([this](boost::system::error_code ec, tcp::socket socket) {
                 if(!ec) {
                     make_shared<session>(move(socket), room_)->start();
                 }
                 do_accept();
             });
         }
-        tcp::acceptor acceptor_;
+        tcp::acceptor acceptor;
         room room_;
 };
 int main(int argc, char* argv[]) {
