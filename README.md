@@ -3,9 +3,9 @@
 Simple Chat Application using Boost Asio, based on Cpp.
 
 
-### Structure
+## Structure
 
-#### Server
+### Server
 
 ```cpp
 typedef deque<message> messageQueue;
@@ -56,7 +56,7 @@ class server {
 int main(int argc, char* argv[]);
 ```
 
-#### Client
+### Client
 
 ```cpp
 typedef deque<message> messageQueue;
