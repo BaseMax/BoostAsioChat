@@ -63,7 +63,7 @@ typedef deque<message> messageQueue;
 
 class client {
     public:
-        client(boost::asio::io_context& context, const tcp::resolver::results_type& endpoints) : context_(context), socket_(context);
+        client(boost::asio::io_context& context, const tcp::resolver::results_type& endpoints) : context(context), socket(context);
         void write(const message& messageItem);
         void close();
     private:
@@ -71,14 +71,13 @@ class client {
         void readHeader();
         void readBody();
         void write();
-        boost::asio::io_context& context_;
-        tcp::socket socket_;
-        message read_messageItem_;
-        messageQueue write_messageItems_;
+        boost::asio::io_context& context;
+        tcp::socket socket;
+        message readMessage;
+        messageQueue writeMessage;
 };
 
 int main(int argc, char* argv[]);
-
 ```
 ### Compile 
 
