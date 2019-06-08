@@ -98,9 +98,9 @@ class session : public participant, public enable_shared_from_this<session> {
         message read_msg;
         messageQueue write_msgs_;
 };
-class chat_server {
+class server {
     public:
-        chat_server(boost::asio::io_context& io_context, const tcp::endpoint& endpoint) : acceptor_(io_context, endpoint) {
+        server(boost::asio::io_context& io_context, const tcp::endpoint& endpoint) : acceptor_(io_context, endpoint) {
             do_accept();
         }
     private:
@@ -118,11 +118,11 @@ class chat_server {
 int main(int argc, char* argv[]) {
     try {
         if(argc < 2) {
-            cerr << "Usage: chat_server <port> [<port> ...]\n";
+            cerr << "Usage: server <port> [<port> ...]\n";
             return 1;
         }
         boost::asio::io_context io_context;
-        list<chat_server> servers;
+        list<server> servers;
         for(int i = 1; i < argc; ++i) {
             tcp::endpoint endpoint(tcp::v4(), atoi(argv[i]));
             servers.emplace_back(io_context, endpoint);
