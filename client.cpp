@@ -9,11 +9,11 @@ using namespace std;
 typedef deque<message> messageQueue;
 class client {
     public:
-        client(boost::asio::io_context& context, const tcp::resolver::results_type& endpoints) : context_(context), socket(context) {
+        client(boost::asio::io_context& context, const tcp::resolver::results_type& endpoints) : context(context), socket(context) {
             connect(endpoints);
         }
         void write(const message& messageItem) {
-            boost::asio::post(context_, [this, messageItem]() {
+            boost::asio::post(context, [this, messageItem]() {
                 bool write_in_progress = !writeMessage.empty();
                 writeMessage.push_back(messageItem);
                 if(!write_in_progress) {
@@ -22,7 +22,7 @@ class client {
             });
         }
         void close() {
-            boost::asio::post(context_, [this]() { socket.close(); });
+            boost::asio::post(context, [this]() { socket.close(); });
         }
     private:
         void connect(const tcp::resolver::results_type& endpoints) {
@@ -67,7 +67,7 @@ class client {
                 }
             });
         }
-        boost::asio::io_context& context_;
+        boost::asio::io_context& context;
         tcp::socket socket;
         message readMessage;
         messageQueue writeMessage;
