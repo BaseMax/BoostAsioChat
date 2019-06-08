@@ -90,19 +90,19 @@ $ g++ Server.cpp -lpthread -o server
 
 1. Start the server
 ```
-./server 4000
+$ ./server 4000
 ```
 2. Login as a user
 
 ```
-./client localhost 4000
+$ ./client localhost 4000
 first user: you can type message here...
 ```
 
 3. Login as a new user
 
 ```
-./client localhost 4000
+$ ./client localhost 4000
 second user: you can type message here...
 ```
 
