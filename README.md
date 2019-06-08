@@ -106,3 +106,11 @@ $ ./client localhost 4000
 second user: you can type message here...
 ```
 
+---------
+
+## Similar projects :
+
+- https://www.boost.org/doc/libs/1_67_0/doc/html/boost_asio/example/cpp03/
+- https://github.com/mpunkenhofer/BoostAsioChat
+- https://www.boost.org/doc/libs/1_67_0/doc/html/boost_asio/example/cpp03/chat/
+
