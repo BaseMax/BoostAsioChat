@@ -13,29 +13,29 @@ typedef deque<message> messageQueue;
 class participant {
     public:
         virtual ~participant() {}
-        virtual void deliver(const message& msg) = 0;
+        virtual void deliver(const message& messageItem) = 0;
 };
 typedef shared_ptr<participant> participantPointer;
 class room {
     public:
         void join(participantPointer participant) {
             participants.insert(participant);
-            for(auto msg: messageRecents)
-                participant->deliver(msg);
+            for(auto messageItem: messageRecents)
+                participant->deliver(messageItem);
         }
-        void deliver(const message& msg) {
-            messageRecents.push_back(msg);
-            while(messageRecents.size() > max_recent_msgs)
+        void deliver(const message& messageItem) {
+            messageRecents.push_back(messageItem);
+            while(messageRecents.size() > max)
                 messageRecents.pop_front();
             for(auto participant: participants)
-                participant->deliver(msg);
+                participant->deliver(messageItem);
         }
         void leave(participantPointer participant) {
             participants.erase(participant);
         }
     private:
         messageQueue messageRecents;
-        enum { max_recent_msgs = 200 };
+        enum { max = 200 };
         set<participantPointer> participants;
 };
 class session : public participant, public enable_shared_from_this<session> {
@@ -46,9 +46,9 @@ class session : public participant, public enable_shared_from_this<session> {
             room_.join(shared_from_this());
             readHeader();
         }
-        void deliver(const message& msg) {
-            bool write_in_progress = !write_msgs_.empty();
-            write_msgs_.push_back(msg);
+        void deliver(const message& messageItem) {
+            bool write_in_progress = !Messages.empty();
+            Messages.push_back(messageItem);
             if(!write_in_progress)
             {
             write();
@@ -58,8 +58,8 @@ class session : public participant, public enable_shared_from_this<session> {
         void readHeader() {
             auto self(shared_from_this());
             boost::asio::async_read(socket_,
-            boost::asio::buffer(read_msg.data(), message::header_length), [this, self](boost::system::error_code ec, size_t) {
-                if(!ec && read_msg.decodeHeader()) {
+            boost::asio::buffer(messageItem.data(), message::header_length), [this, self](boost::system::error_code ec, size_t) {
+                if(!ec && messageItem.decodeHeader()) {
                     readBody();
                 }
                 else {
@@ -69,9 +69,9 @@ class session : public participant, public enable_shared_from_this<session> {
         }
         void readBody() {
             auto self(shared_from_this());
-            boost::asio::async_read(socket_, boost::asio::buffer(read_msg.body(), read_msg.bodyLength()), [this, self](boost::system::error_code ec, size_t) {
+            boost::asio::async_read(socket_, boost::asio::buffer(messageItem.body(), messageItem.bodyLength()), [this, self](boost::system::error_code ec, size_t) {
                 if(!ec) {
-                    room_.deliver(read_msg);
+                    room_.deliver(messageItem);
                     readHeader();
                 }
                 else {
@@ -81,10 +81,10 @@ class session : public participant, public enable_shared_from_this<session> {
         }
         void write() {
             auto self(shared_from_this());
-            boost::asio::async_write(socket_, boost::asio::buffer(write_msgs_.front().data(), write_msgs_.front().length()), [this, self](boost::system::error_code ec, size_t) {
+            boost::asio::async_write(socket_, boost::asio::buffer(Messages.front().data(), Messages.front().length()), [this, self](boost::system::error_code ec, size_t) {
                 if(!ec) {
-                    write_msgs_.pop_front();
-                    if(!write_msgs_.empty()) {
+                    Messages.pop_front();
+                    if(!Messages.empty()) {
                         write();
                     }
                 }
@@ -95,8 +95,8 @@ class session : public participant, public enable_shared_from_this<session> {
         }
         tcp::socket socket_;
         room& room_;
-        message read_msg;
-        messageQueue write_msgs_;
+        message messageItem;
+        messageQueue Messages;
 };
 class server {
     public:
