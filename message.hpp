@@ -1,5 +1,5 @@
-#ifndef message_HPP
-    #define message_HPP
+#ifndef message_h
+    #define message_h
 
     #include <cstdio>
     #include <cstdlib>
