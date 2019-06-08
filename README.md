@@ -7,7 +7,7 @@ Simple Chat Application using Boost Asio, based on Cpp.
 
 #### Server
 
-```
+```cpp
 typedef deque<message> messageQueue;
 
 class participant {
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]);
 
 #### Client
 
-```
+```cpp
 typedef deque<message> messageQueue;
 
 class client {
