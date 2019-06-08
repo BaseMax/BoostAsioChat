@@ -46,10 +46,10 @@ class session : public participant, public enable_shared_from_this<session> {
 
 class server {
     public:
-        server(boost::asio::io_context& io_context, const tcp::endpoint& endpoint) : acceptor_(io_context, endpoint);
+        server(boost::asio::io_context& io_context, const tcp::endpoint& endpoint) : acceptor(io_context, endpoint);
     private:
         void do_accept();
-        tcp::acceptor acceptor_;
+        tcp::acceptor acceptor;
         room room_;
 };
 
