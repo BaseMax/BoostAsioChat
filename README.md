@@ -31,14 +31,14 @@ class room {
 
 class session : public participant, public enable_shared_from_this<session> {
     public:
-        session(tcp::socket socket, room& room) : socket_(move(socket)), room_(room);
+        session(tcp::socket socket, room& room) : socket(move(socket)), room_(room);
         void start();
         void deliver(const message& messageItem);
     private:
         void readHeader();
         void readBody();
         void write();
-        tcp::socket socket_;
+        tcp::socket socket;
         room& room_;
         message messageItem;
         messageQueue Messages;
