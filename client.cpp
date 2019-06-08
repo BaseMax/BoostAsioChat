@@ -12,10 +12,10 @@ class client {
         client(boost::asio::io_context& context, const tcp::resolver::results_type& endpoints) : context_(context), socket_(context) {
             do_connect(endpoints);
         }
-        void write(const message& msg) {
-            boost::asio::post(context_, [this, msg]() {
-                bool write_in_progress = !write_msgs_.empty();
-                write_msgs_.push_back(msg);
+        void write(const message& messageItem) {
+            boost::asio::post(context_, [this, messageItem]() {
+                bool write_in_progress = !write_messageItems_.empty();
+                write_messageItems_.push_back(messageItem);
                 if(!write_in_progress) {
                     write();
                 }
@@ -33,8 +33,8 @@ class client {
             });
         }
         void readHeader() {
-            boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.data(), message::header_length), [this](boost::system::error_code ec, size_t) {
-                if(!ec && read_msg_.decodeHeader()) {
+            boost::asio::async_read(socket_, boost::asio::buffer(read_messageItem_.data(), message::header_length), [this](boost::system::error_code ec, size_t) {
+                if(!ec && read_messageItem_.decodeHeader()) {
                     readBody();
                 }
                 else {
@@ -43,9 +43,9 @@ class client {
             });
         }
         void readBody() {
-            boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.body(), read_msg_.bodyLength()), [this](boost::system::error_code ec, size_t) {
+            boost::asio::async_read(socket_, boost::asio::buffer(read_messageItem_.body(), read_messageItem_.bodyLength()), [this](boost::system::error_code ec, size_t) {
                 if(!ec) {
-                    cout.write(read_msg_.body(), read_msg_.bodyLength());
+                    cout.write(read_messageItem_.body(), read_messageItem_.bodyLength());
                     cout << "\n";
                     readHeader();
                 }
@@ -55,10 +55,10 @@ class client {
             });
         }
         void write() {
-            boost::asio::async_write(socket_, boost::asio::buffer(write_msgs_.front().data(), write_msgs_.front().length()), [this](boost::system::error_code ec, size_t) {
+            boost::asio::async_write(socket_, boost::asio::buffer(write_messageItems_.front().data(), write_messageItems_.front().length()), [this](boost::system::error_code ec, size_t) {
                 if(!ec) {
-                    write_msgs_.pop_front();
-                    if(!write_msgs_.empty()) {
+                    write_messageItems_.pop_front();
+                    if(!write_messageItems_.empty()) {
                         write();
                     }
                 }
@@ -69,8 +69,8 @@ class client {
         }
         boost::asio::io_context& context_;
         tcp::socket socket_;
-        message read_msg_;
-        messageQueue write_msgs_;
+        message read_messageItem_;
+        messageQueue write_messageItems_;
 };
 int main(int argc, char* argv[]) {
     try {
@@ -85,11 +85,11 @@ int main(int argc, char* argv[]) {
         thread t([&context](){ context.run(); });
         char line[message::max_bodyLength + 1];
         while(cin.getline(line, message::max_bodyLength + 1)) {
-            message msg;
-            msg.bodyLength(strlen(line));
-            memcpy(msg.body(), line, msg.bodyLength());
-            msg.encodeHeader();
-            c.write(msg);
+            message messageItem;
+            messageItem.bodyLength(strlen(line));
+            memcpy(messageItem.body(), line, messageItem.bodyLength());
+            messageItem.encodeHeader();
+            c.write(messageItem);
         }
         c.close();
         t.join();
