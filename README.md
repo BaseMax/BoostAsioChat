@@ -112,5 +112,6 @@ second user: you can type message here...
 
 - https://www.boost.org/doc/libs/1_67_0/doc/html/boost_asio/example/cpp03/
 - https://github.com/mpunkenhofer/BoostAsioChat
+- https://stackoverflow.com/questions/37228437/boost-asio-chat-example-how-do-i-manually-write-in-the-body-of-the-message-c
 - https://www.boost.org/doc/libs/1_67_0/doc/html/boost_asio/example/cpp03/chat/
 
