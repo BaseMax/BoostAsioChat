@@ -9,68 +9,68 @@ using namespace std;
 typedef deque<message> messageQueue;
 class client {
     public:
-        client(boost::asio::io_context& context, const tcp::resolver::results_type& endpoints) : context_(context), socket_(context) {
+        client(boost::asio::io_context& context, const tcp::resolver::results_type& endpoints) : context_(context), socket(context) {
             connect(endpoints);
         }
         void write(const message& messageItem) {
             boost::asio::post(context_, [this, messageItem]() {
-                bool write_in_progress = !write_messageItems_.empty();
-                write_messageItems_.push_back(messageItem);
+                bool write_in_progress = !writeMessage.empty();
+                writeMessage.push_back(messageItem);
                 if(!write_in_progress) {
                     write();
                 }
             });
         }
         void close() {
-            boost::asio::post(context_, [this]() { socket_.close(); });
+            boost::asio::post(context_, [this]() { socket.close(); });
         }
     private:
         void connect(const tcp::resolver::results_type& endpoints) {
-            boost::asio::async_connect(socket_, endpoints, [this](boost::system::error_code ec, tcp::endpoint) {
+            boost::asio::async_connect(socket, endpoints, [this](boost::system::error_code ec, tcp::endpoint) {
                 if(!ec) {
                     readHeader();
                 }
             });
         }
         void readHeader() {
-            boost::asio::async_read(socket_, boost::asio::buffer(read_messageItem_.data(), message::header_length), [this](boost::system::error_code ec, size_t) {
-                if(!ec && read_messageItem_.decodeHeader()) {
+            boost::asio::async_read(socket, boost::asio::buffer(readMessage.data(), message::header_length), [this](boost::system::error_code ec, size_t) {
+                if(!ec && readMessage.decodeHeader()) {
                     readBody();
                 }
                 else {
-                    socket_.close();
+                    socket.close();
                 }
             });
         }
         void readBody() {
-            boost::asio::async_read(socket_, boost::asio::buffer(read_messageItem_.body(), read_messageItem_.bodyLength()), [this](boost::system::error_code ec, size_t) {
+            boost::asio::async_read(socket, boost::asio::buffer(readMessage.body(), readMessage.bodyLength()), [this](boost::system::error_code ec, size_t) {
                 if(!ec) {
-                    cout.write(read_messageItem_.body(), read_messageItem_.bodyLength());
+                    cout.write(readMessage.body(), readMessage.bodyLength());
                     cout << "\n";
                     readHeader();
                 }
                 else {
-                    socket_.close();
+                    socket.close();
                 }
             });
         }
         void write() {
-            boost::asio::async_write(socket_, boost::asio::buffer(write_messageItems_.front().data(), write_messageItems_.front().length()), [this](boost::system::error_code ec, size_t) {
+            boost::asio::async_write(socket, boost::asio::buffer(writeMessage.front().data(), writeMessage.front().length()), [this](boost::system::error_code ec, size_t) {
                 if(!ec) {
-                    write_messageItems_.pop_front();
-                    if(!write_messageItems_.empty()) {
+                    writeMessage.pop_front();
+                    if(!writeMessage.empty()) {
                         write();
                     }
                 }
                 else {
-                    socket_.close();
+                    socket.close();
                 }
             });
         }
         boost::asio::io_context& context_;
-        tcp::socket socket_;
-        message read_messageItem_;
-        messageQueue write_messageItems_;
+        tcp::socket socket;
+        message readMessage;
+        messageQueue writeMessage;
 };
 int main(int argc, char* argv[]) {
     try {
