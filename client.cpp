@@ -10,7 +10,7 @@ typedef deque<message> messageQueue;
 class client {
     public:
         client(boost::asio::io_context& context, const tcp::resolver::results_type& endpoints) : context_(context), socket_(context) {
-            do_connect(endpoints);
+            connect(endpoints);
         }
         void write(const message& messageItem) {
             boost::asio::post(context_, [this, messageItem]() {
@@ -25,7 +25,7 @@ class client {
             boost::asio::post(context_, [this]() { socket_.close(); });
         }
     private:
-        void do_connect(const tcp::resolver::results_type& endpoints) {
+        void connect(const tcp::resolver::results_type& endpoints) {
             boost::asio::async_connect(socket_, endpoints, [this](boost::system::error_code ec, tcp::endpoint) {
                 if(!ec) {
                     readHeader();
