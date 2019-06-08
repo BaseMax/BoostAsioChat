@@ -1,14 +1,14 @@
-#ifndef message_h
-    #define message_h
+#ifndef message_HPP
+    #define message_HPP
 
     #include <cstdio>
     #include <cstdlib>
     #include <cstring>
-
+    using namespace std;
     class message {
         public:
-            enum { header_length = 4 };
-            enum { max_bodyLength = 512 };
+            enum { headerLength = 4 };
+            enum { maxBodyLength = 512 };
             message() : bodyLength_(0) {
             }
             const char* data() const {
@@ -17,40 +17,41 @@
             char* data() {
                 return data_;
             }
-            std::size_t length() const {
-                return header_length + bodyLength_;
+            size_t length() const {
+                return headerLength + bodyLength_;
             }
             const char* body() const {
-                return data_ + header_length;
+                return data_ + headerLength;
             }
             char* body() {
-                return data_ + header_length;
+                return data_ + headerLength;
             }
-            std::size_t bodyLength() const {
+            size_t bodyLength() const {
                 return bodyLength_;
             }
-            void bodyLength(std::size_t new_length) {
+            void bodyLength(size_t new_length) {
                 bodyLength_ = new_length;
-                if(bodyLength_ > max_bodyLength)
-                    bodyLength_ = max_bodyLength;
+                if(bodyLength_ > maxBodyLength)
+                    bodyLength_ = maxBodyLength;
             }
             bool decodeHeader() {
-                char header[header_length + 1] = "";
-                std::strncat(header, data_, header_length);
-                bodyLength_ = std::atoi(header);
-                if(bodyLength_ > max_bodyLength) {
+                char header[headerLength + 1] = "";
+                strncat(header, data_, headerLength);
+                bodyLength_ = atoi(header);
+                if(bodyLength_ > maxBodyLength) {
                     bodyLength_ = 0;
                     return false;
                 }
                 return true;
             }
             void encodeHeader() {
-                char header[header_length + 1] = "";
-                std::sprintf(header, "%4d", static_cast<int>(bodyLength_));
-                std::memcpy(data_, header, header_length);
+                char header[headerLength + 1] = "";
+                sprintf(header, "%4d", static_cast<int>(bodyLength_));
+                memcpy(data_, header, headerLength);
             }
         private:
-            char data_[header_length + max_bodyLength];
-            std::size_t bodyLength_;
+            char data_[headerLength + maxBodyLength];
+            size_t bodyLength_;
     };
+
 #endif
