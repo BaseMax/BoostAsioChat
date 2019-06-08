@@ -33,7 +33,7 @@ class client {
             });
         }
         void readHeader() {
-            boost::asio::async_read(socket, boost::asio::buffer(readMessage.data(), message::header_length), [this](boost::system::error_code ec, size_t) {
+            boost::asio::async_read(socket, boost::asio::buffer(readMessage.data(), message::headerLength), [this](boost::system::error_code ec, size_t) {
                 if(!ec && readMessage.decodeHeader()) {
                     readBody();
                 }
@@ -83,8 +83,8 @@ int main(int argc, char* argv[]) {
         auto endpoints = resolver.resolve(argv[1], argv[2]);
         client c(context, endpoints);
         thread t([&context](){ context.run(); });
-        char line[message::max_bodyLength + 1];
-        while(cin.getline(line, message::max_bodyLength + 1)) {
+        char line[message::maxBodyLength + 1];
+        while(cin.getline(line, message::maxBodyLength + 1)) {
             message messageItem;
             messageItem.bodyLength(strlen(line));
             memcpy(messageItem.body(), line, messageItem.bodyLength());
