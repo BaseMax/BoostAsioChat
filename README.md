@@ -13,7 +13,7 @@ typedef deque<message> messageQueue;
 class participant {
     public:
         virtual ~participant() {}
-        virtual void deliver(const message& msg) = 0;
+        virtual void deliver(const message& messageItem) = 0;
 };
 
 typedef shared_ptr<participant> participantPointer;
@@ -21,11 +21,11 @@ typedef shared_ptr<participant> participantPointer;
 class room {
     public:
         void join(participantPointer participant);
-        void deliver(const message& msg);
+        void deliver(const message& messageItem);
         void leave(participantPointer participant);
     private:
         messageQueue messageRecents;
-        enum { max_recent_msgs = 200 };
+        enum { max = 200 };
         set<participantPointer> participants;
 };
 
@@ -33,15 +33,15 @@ class session : public participant, public enable_shared_from_this<session> {
     public:
         session(tcp::socket socket, room& room) : socket_(move(socket)), room_(room);
         void start();
-        void deliver(const message& msg);
+        void deliver(const message& messageItem);
     private:
         void readHeader();
         void readBody();
         void write();
         tcp::socket socket_;
         room& room_;
-        message read_msg;
-        messageQueue write_msgs_;
+        message messageItem;
+        messageQueue Messages;
 };
 
 class server {
